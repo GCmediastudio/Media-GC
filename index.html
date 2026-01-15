@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>GC Media | Photography & Videography</title>
+    <meta name="description" content="Professional creative and experimental photography and videography by GC Media. Based in New York Capital Region.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        /* Typewriter Cursor */
+        .typewriter-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+            margin-left: 2px;
+            color: #666;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            transition: all 0.6s cubic-bezier(0.17, 0.55, 0.55, 1);
+            filter: blur(4px);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
+        }
+
+        /* Hero Entrance */
+        .hero-reveal {
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-reveal.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Snap Slider Styles */
+        .slider-container {
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            padding-bottom: 2rem;
+            touch-action: pan-y;
+        }
+
+        .slider-track {
+            display: flex;
+            gap: 1.5rem;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+        }
+
+        .slider-item {
+            flex: 0 0 90%;
+            max-width: 450px;
+        }
+
+        @media (min-width: 768px) {
+            .slider-item {
+                flex: 0 0 33.333%;
+                max-width: none;
+            }
+        }
+
+        .glass-card {
+            background: #111;
+            border: 1px rgba(255, 255, 255, 0.1) solid;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0; 
+            transition: opacity 0.6s ease;
+        }
+
+        .portfolio-image.loaded {
+            opacity: 1;
+        }
+
+        /* Hero Buttons */
+        .hero-btn {
+            @apply flex items-center justify-center text-center font-bold uppercase tracking-widest text-[10px] md:text-xs transition-all duration-300;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 1rem 0.5rem; 
+            width: 100%; 
+        }
+
+        @media (min-width: 768px) {
+            .hero-btn { width: 140px; }
+        }
+
+        .hero-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            transform: translateY(-5px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #fff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        #mobile-menu.open { transform: translateX(0); }
+    </style>
+    <script>
+        window.handleImgErr = function(img) {
+            const exts = ['jpg', 'jpeg', 'png', 'webp'];
+            const base = img.getAttribute('data-base');
+            const idx = parseInt(img.dataset.try || 0);
+            if(idx < exts.length) {
+                img.dataset.try = idx + 1;
+                img.src = `${base}.${exts[idx]}`;
+            }
+        };
+    </script>
+</head>
+<body class="hero-gradient">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-6 bg-black/50 backdrop-blur-md">
+        <div class="text-2xl font-black tracking-tighter">GC MEDIA</div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium tracking-widest uppercase items-center">
+            <a href="#sports" class="nav-link relative">Sports</a>
+            <a href="#cars" class="nav-link relative">Automotive</a>
+            <a href="#about" class="nav-link relative">About</a>
+            <a href="#contact" class="nav-link text-white font-bold relative border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-all">Contact</a>
+        </div>
+        <button class="md:hidden text-2xl z-50" id="menu-btn" onclick="toggleMenu()">☰</button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black z-40 flex flex-col items-center justify-center space-y-8 text-2xl font-bold uppercase tracking-widest md:hidden">
+        <a href="#sports" onclick="toggleMenu()">Sports</a>
+        <a href="#cars" onclick="toggleMenu()">Automotive</a>
+        <a href="#about" onclick="toggleMenu()">About</a>
+        <a href="#contact" onclick="toggleMenu()">Contact</a>
+    </div>
+
+    <!-- Hero -->
+    <section class="h-screen w-full flex flex-col justify-center items-center px-6 text-center">
+        <h1 class="hero-reveal text-6xl md:text-9xl font-black mb-4 tracking-tight leading-none uppercase">
+            MOMENTS <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-600">CAPTURED</span>
+        </h1>
+        <p class="hero-reveal text-gray-400 text-lg md:text-xl max-w-2xl mb-12 tracking-wide font-light">
+            Professional <span id="typewriter" class="typewriter-cursor text-white font-medium"></span>
+        </p>
+        
+        <div class="hero-reveal grid grid-cols-2 md:flex md:flex-row gap-4 w-full max-w-[320px] md:max-w-none md:justify-center">
+            <a href="#sports" class="hero-btn">Sports</a>
+            <a href="#cars" class="hero-btn">Cars</a>
+            <a href="#about" class="hero-btn">Meet GC</a>
+            <a href="#contact" class="hero-btn">Contact</a>
+        </div>
+    </section>
+
+    <!-- Sports Section -->
+    <section id="sports" class="py-24 px-8 md:px-20 bg-black">
+        <div class="mb-12 reveal">
+            <h2 class="text-4xl font-bold mb-4 uppercase tracking-tight">Sports</h2>
+            <div class="h-1 w-24 bg-white mb-2"></div>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Swipe to Explore</p>
+        </div>
+        
+        <div class="slider-container reveal" data-slider="sports">
+            <div class="slider-track">
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="sports1.jpg" data-base="sports1" alt="Sports" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="sports2.jpg" data-base="sports2" alt="Sports" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="sports3.jpg" data-base="sports3" alt="Sports" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Automotive Section -->
+    <section id="cars" class="py-24 px-8 md:px-20 hero-gradient">
+        <div class="mb-12 text-right flex flex-col items-end reveal">
+            <h2 class="text-4xl font-bold mb-4 uppercase tracking-tight">Automotive</h2>
+            <div class="h-1 w-24 bg-white mb-2"></div>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Swipe to Explore</p>
+        </div>
+
+        <div class="slider-container reveal" data-slider="cars">
+            <div class="slider-track">
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="car1.jpg" data-base="car1" alt="Car" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="car2.jpg" data-base="car2" alt="Car" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+                <div class="slider-item">
+                    <div class="glass-card aspect-[4/5] rounded-lg">
+                        <img src="car3.jpg" data-base="car3" alt="Car" class="portfolio-image" onerror="handleImgErr(this)" onload="this.classList.add('loaded')">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-32 px-8 md:px-20 bg-[#050505] border-y border-white/5">
+        <div class="max-w-3xl mx-auto text-center reveal">
+            <h2 class="text-5xl md:text-7xl font-black mb-12 italic tracking-tighter uppercase">The Vision</h2>
+            <div class="about-text space-y-8 text-gray-400 text-lg md:text-xl font-light leading-relaxed">
+                <p>Photography started for me through a simple moment of curiosity. After watching my brother capture the world through his lens, I picked up his camera one day and instantly felt a connection.</p>
+                <p>Today, <span class="text-white font-medium">GC Media</span> is defined by a commitment to professional, experimental, and creative storytelling. I look for the angles that haven't been seen and the moments that feel raw and authentic.</p>
+                <p>Based in the <span class="text-white font-medium">Capital Region of New York</span>, I work locally but am always ready to travel for global bookings.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 px-8 text-center bg-white text-black reveal">
+        <h2 class="text-5xl md:text-7xl font-black mb-8 italic">GET IN TOUCH</h2>
+        <div class="flex flex-col space-y-6 items-center">
+            <a href="mailto:gc.mediastudios@gmail.com" class="text-2xl md:text-4xl font-light underline hover:no-underline tracking-tighter">gc.mediastudios@gmail.com</a>
+            <div class="flex flex-col space-y-2">
+                <a href="tel:5183663677" class="text-2xl md:text-4xl font-bold tracking-tighter hover:opacity-70 transition-opacity">518-366-3677</a>
+                <a href="sms:+15183663677" class="text-xs font-bold tracking-[.3em] uppercase opacity-60 hover:opacity-100 transition-opacity underline decoration-1 underline-offset-4">Text Me Directly</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-16 px-8 bg-black border-t border-white/5 flex flex-col items-center">
+        <div class="text-gray-500 text-[10px] tracking-[0.4em] uppercase text-center space-y-2">
+            <p>&copy; 2026 GC MEDIA. ALL RIGHTS RESERVED.</p>
+            <p class="opacity-30">Photography & Videography Portfolio</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('menu-btn');
+            menu.classList.toggle('open');
+            btn.innerText = menu.classList.contains('open') ? '✕' : '☰';
+        }
+
+        // Typewriter Effect
+        const words = ["Photographer", "Videographer"];
+        let i = 0, j = 0, currentWord = "", isDeleting = false;
+
+        function type() {
+            currentWord = words[i];
+            const target = document.getElementById("typewriter");
+            if (!target) return;
+            
+            if (isDeleting) {
+                target.textContent = currentWord.substring(0, j - 1);
+                j--;
+                if (j === 0) {
+                    isDeleting = false;
+                    i = (i + 1) % words.length;
+                }
+            } else {
+                target.textContent = currentWord.substring(0, j + 1);
+                j++;
+                if (j === currentWord.length) {
+                    isDeleting = true;
+                    setTimeout(type, 1500);
+                    return;
+                }
+            }
+            setTimeout(type, isDeleting ? 40 : 80);
+        }
+
+        // Snap Slider Logic
+        function initSnapSliders() {
+            document.querySelectorAll('.slider-container').forEach(container => {
+                const track = container.querySelector('.slider-track');
+                const items = track.querySelectorAll('.slider-item');
+                let startX = 0, currentIdx = 0, isDragging = false;
+
+                const moveToIndex = (idx) => {
+                    currentIdx = Math.max(0, Math.min(idx, items.length - 1));
+                    const gap = 24; 
+                    const width = items[0].offsetWidth + gap;
+                    track.style.transform = `translateX(-${currentIdx * width}px)`;
+                };
+
+                const start = (e) => { 
+                    startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX; 
+                    isDragging = true;
+                };
+
+                const end = (e) => {
+                    if (!isDragging) return;
+                    const endX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
+                    const diff = startX - endX;
+                    if (Math.abs(diff) > 50) {
+                        diff > 0 ? moveToIndex(currentIdx + 1) : moveToIndex(currentIdx - 1);
+                    }
+                    isDragging = false;
+                };
+
+                container.addEventListener('touchstart', start);
+                container.addEventListener('touchend', end);
+                container.addEventListener('mousedown', start);
+                container.addEventListener('mouseup', end);
+            });
+        }
+
+        // Faster Staggered Intro
+        function runIntro() {
+            const heroEls = document.querySelectorAll('.hero-reveal');
+            setTimeout(() => { 
+                if(heroEls[0]) heroEls[0].classList.add('active'); 
+                type(); 
+            }, 100);
+            
+            setTimeout(() => { if(heroEls[1]) heroEls[1].classList.add('active'); }, 400);
+            setTimeout(() => { if(heroEls[2]) heroEls[2].classList.add('active'); }, 700);
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            runIntro();
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            initSnapSliders();
+        };
+    </script>
+</body>
+</html>
